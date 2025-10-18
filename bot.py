@@ -21,11 +21,11 @@ from telegram.ext import (
 
 # ---------- CONFIG ----------
 BOT_TOKEN_ENV = "BOT_TOKEN"
-PORT = os.environ.get("PORT", 8080)  # ✅ Added this for Railway
+PORT = int(os.environ.get("PORT", 8080))  # ✅ Fixed for Railway
 TIMEZONE = ZoneInfo("Africa/Lagos")  # user requested Africa/Lagos
-OPEN_HOUR = 6   # 6:00 AM inclusive
-CLOSE_HOUR = 18 # 6:00 PM exclusive
-COOLDOWN = timedelta(minutes=5)  # per-user cooldown
+OPEN_HOUR = 6
+CLOSE_HOUR = 18
+COOLDOWN = timedelta(minutes=5)
 COOLDOWN_MSG = "⏳ Please wait before requesting another signal. Signals are limited to one every 5 minutes."
 OUTSIDE_WINDOW_MSG = "⏳ Signal window closed. Try again between 6AM and 6PM."
 START_MESSAGE = (
@@ -34,7 +34,7 @@ START_MESSAGE = (
     "Signals available between 6AM and 6PM (Africa/Lagos). Be responsible — trade wisely."
 )
 
-# Anti-spam group throttle (simple heuristic)
+# Anti-spam group throttle
 CHAT_SIGNAL_WINDOW_SEC = 30
 CHAT_SIGNAL_LIMIT = 6
 CHAT_THROTTLE_DURATION = 60
@@ -164,7 +164,7 @@ def main():
     app.add_handler(MessageHandler(signal_filter, text_handler))
 
     logger.info("Starting BC Crash Signals Bot (Africa/Lagos time).")
-    app.run_polling(poll_interval=3.0, allowed_updates=Update.ALL_TYPES)  # ✅ Modified this
+    app.run_polling(poll_interval=3.0, allowed_updates=Update.ALL_TYPES)  # ✅ Railway-ready
 
 if __name__ == "__main__":
     main()
