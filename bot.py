@@ -1,12 +1,12 @@
 # bot.py
-# Requires: python-telegram-bot==20.6 (or similar v20+)
+# Requires: python-telegram-bot==20.6
 # Usage: set environment variable BOT_TOKEN with your BotFather token before running.
 
 import os
 import asyncio
 import logging
 import random
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from typing import Dict, List
 
@@ -19,10 +19,13 @@ from telegram.ext import (
     filters,
 )
 
+# ---------- DEBUG ----------
+print("🚀 Bot is starting...")  # <- Railway startup check
+
 # ---------- CONFIG ----------
 BOT_TOKEN_ENV = "BOT_TOKEN"
-PORT = int(os.environ.get("PORT", 8080))  # ✅ Fixed for Railway
-TIMEZONE = ZoneInfo("Africa/Lagos")  # user requested Africa/Lagos
+PORT = int(os.environ.get("PORT", 8080))  # Railway default port handling
+TIMEZONE = ZoneInfo("Africa/Lagos")
 OPEN_HOUR = 6
 CLOSE_HOUR = 18
 COOLDOWN = timedelta(minutes=5)
@@ -34,7 +37,7 @@ START_MESSAGE = (
     "Signals available between 6AM and 6PM (Africa/Lagos). Be responsible — trade wisely."
 )
 
-# Anti-spam group throttle
+# Anti-spam
 CHAT_SIGNAL_WINDOW_SEC = 30
 CHAT_SIGNAL_LIMIT = 6
 CHAT_THROTTLE_DURATION = 60
@@ -73,10 +76,7 @@ def choose_signal_type(chat_id: int) -> str:
     if not last:
         choice = random.choice(["BUY", "SELL"])
     else:
-        if random.random() < 0.6:
-            choice = "SELL" if last == "BUY" else "BUY"
-        else:
-            choice = random.choice(["BUY", "SELL"])
+        choice = "SELL" if last == "BUY" else "BUY" if random.random() < 0.6 else random.choice(["BUY","SELL"])
     last_signal_type_by_chat[chat_id] = choice
     return choice
 
@@ -164,7 +164,7 @@ def main():
     app.add_handler(MessageHandler(signal_filter, text_handler))
 
     logger.info("Starting BC Crash Signals Bot (Africa/Lagos time).")
-    app.run_polling(poll_interval=3.0, allowed_updates=Update.ALL_TYPES)  # ✅ Railway-ready
+    app.run_polling(poll_interval=3.0, allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
     main()
